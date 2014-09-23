@@ -9,11 +9,11 @@ describe "Plant Container" do
     container = PlantContainer.new("./data/metrics.tsv")
     averages = container.averages
     expected_output = {
-      container: 1,
-      ph: 5.01,
-      nsl: 39.02,
-      temp: 57.76,
-      water_level: 2.12
+      name: "container1",
+      avg_ph: 5.01,
+      avg_nsl: 39.02,
+      avg_temp: 57.76,
+      avg_water_level: 2.12
     }
 
     expect(averages[1]).to eq(expected_output)
@@ -21,8 +21,16 @@ describe "Plant Container" do
 
   it "returns container with highest avg temp" do
     container = PlantContainer.new("./data/metrics.tsv")
-    highest_temp_container = container.highest_temp
-    expected_container = 2
+    highest_temp_container = container.highest_avg_temp
+    expected_container = "container2"
+
+    expect(highest_temp_container).to eq(expected_container)
+  end
+
+  it "returns container with highest absolute water level" do
+    container = PlantContainer.new("./data/metrics.tsv")
+    highest_temp_container = container.highest_water_level
+    expected_container = "container3"
 
     expect(highest_temp_container).to eq(expected_container)
   end
