@@ -47,4 +47,14 @@ describe "Plant Container" do
 
     expect(averages).to eq(expected_averages)
   end
+
+  it "returns highest absolute ph for a date range" do
+    container = PlantContainer.new("./data/metrics.tsv")
+    start_date = Date.parse("2014-01-01")
+    end_date = Date.parse("2014-01-01")
+    highest_ph_container = container.highest_ph(start_date, end_date)
+    expected_container = "container3"
+
+    expect(highest_ph_container).to eq(expected_container)
+  end
 end

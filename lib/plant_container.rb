@@ -51,6 +51,18 @@ class PlantContainer
     }
   end
 
+  def highest_ph(start_date, end_date)
+    output = []
+    CSV.foreach(@file, {:col_sep => " "}) do |row|
+      date= Date.parse(row[0])
+      if date >= start_date && date <= end_date
+        container = {name: row[3], ph: row[7]}
+        output << container
+      end
+    end
+    output.sort_by { |container| container[:ph]}.last[:name]
+  end
+
   private
 
   def empty_container
@@ -69,7 +81,6 @@ class PlantContainer
       container = row[3][-1].to_i
       containers[container] = empty_container unless containers.has_key?(container)
 
-      # container[container][:name] = row[3]
       containers[container][:ph_sum] += row[4].to_f
       containers[container][:nsl_sum] += row[5].to_i
       containers[container][:temp_sum] += row[6].to_i
