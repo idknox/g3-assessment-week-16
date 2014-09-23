@@ -34,4 +34,17 @@ describe "Plant Container" do
 
     expect(highest_temp_container).to eq(expected_container)
   end
+
+  it "returns avgs for all containers" do
+    container = PlantContainer.new("./data/metrics.tsv")
+    averages = container.all_averages
+    expected_averages = {
+      ph: 5.99,
+      nsl: 23.25,
+      temp: 66.15,
+      water_level: 3.54
+    }
+
+    expect(averages).to eq(expected_averages)
+  end
 end
