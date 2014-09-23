@@ -7,7 +7,7 @@ describe "Plant Container" do
 
   it "returns a hash with averages" do
     container = PlantContainer.new("./data/metrics.tsv")
-    averages = container.averages(1)
+    averages = container.averages
     expected_output = {
       container: 1,
       ph: 5.01,
@@ -16,6 +16,14 @@ describe "Plant Container" do
       water_level: 2.12
     }
 
-    expect(averages).to eq(expected_output)
+    expect(averages[1]).to eq(expected_output)
+  end
+
+  it "returns container with highest avg temp" do
+    container = PlantContainer.new("./data/metrics.tsv")
+    highest_temp_container = container.highest_temp
+    expected_container = 2
+
+    expect(highest_temp_container).to eq(expected_container)
   end
 end
