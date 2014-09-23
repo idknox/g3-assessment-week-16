@@ -37,4 +37,7 @@ class PlantContainer
     output
   end
 
+  def highest_temp
+    averages.values.sort_by {|container| container[:temp]}.last[:container]
+  end
 end
