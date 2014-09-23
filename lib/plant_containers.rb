@@ -6,9 +6,8 @@ class PlantContainers
   end
 
   def averages
-    containers = container_totals
     output = {}
-    (1..containers.keys.length).each { |container| output[container] = build_container(containers, container) }
+    (1..container_totals.keys.length).each { |container| output[container] = build_container(container_totals, container) }
     output
   end
 
@@ -17,13 +16,12 @@ class PlantContainers
   end
 
   def all_averages
-    totals = {ph: 0, nsl: 0, temp: 0, water_level: 0}
-    count = 0
+    totals, count = {phs: [], nsls: [], temps: [], water_levels: []}, 0
     CSV.foreach(@file, {:col_sep => " "}) do |row|
-      totals[:ph] += row[4].to_f
-      totals[:nsl] += row[5].to_i
-      totals[:temp] += row[6].to_i
-      totals[:water_level] += row[7].to_f
+      totals[:phs] << row[4].to_f
+      totals[:nsls] << row[5].to_i
+      totals[:temps] << row[6].to_i
+      totals[:water_levels] << row[7].to_f
       count += 1.0
     end
     build_total_averages(totals, count)
@@ -45,48 +43,51 @@ class PlantContainers
   end
 
   private
-
-  def build_container(containers, container)
-    {
-      name: "container" + container.to_s,
-      avg_ph: (containers[container][:ph_sum]/containers[container][:count]).round(2),
-      avg_nsl: (containers[container][:nsl_sum]/containers[container][:count]).round(2),
-      avg_temp: (containers[container][:temp_sum]/containers[container][:count]).round(2),
-      avg_water_level: (containers[container][:water_level_sum]/containers[container][:count]).round(2),
-    }
-  end
-
   def container_totals
     containers = {}
     CSV.foreach(@file, {:col_sep => " "}) do |row|
       container = row[3][-1].to_i
       containers[container] = empty_container unless containers.has_key?(container)
 
-      containers[container][:ph_sum] += row[4].to_f
-      containers[container][:nsl_sum] += row[5].to_i
-      containers[container][:temp_sum] += row[6].to_i
-      containers[container][:water_level_sum] += row[7].to_f
+      containers[container][:phs] << row[4].to_f
+      containers[container][:nsls] << row[5].to_i
+      containers[container][:temps] << row[6].to_i
+      containers[container][:water_levels] << row[7].to_f
       containers[container][:count] += 1
     end
     containers
   end
 
+  def build_container(containers, container)
+    {
+      name: "container" + container.to_s,
+      avg_ph: (sum(containers[container][:phs]) / containers[container][:count]).round(2),
+      avg_nsl: (sum(containers[container][:nsls]) / containers[container][:count]).round(2),
+      avg_temp: (sum(containers[container][:temps]) / containers[container][:count]).round(2),
+      avg_water_level: (sum(containers[container][:water_levels]) / containers[container][:count]).round(2),
+    }
+  end
+
+  def sum(array)
+    array.inject { |sum, x| sum + x }
+  end
+
   def empty_container
     {
-      ph_sum: 0,
-      nsl_sum: 0,
-      temp_sum: 0,
-      water_level_sum: 0,
+      phs: [],
+      nsls: [],
+      temps: [],
+      water_levels: [],
       count: 0.0
     }
   end
 
   def build_total_averages(totals, count)
     {
-      ph: (totals[:ph]/count).round(2),
-      nsl: (totals[:nsl]/count).round(2),
-      temp: (totals[:temp]/count).round(2),
-      water_level: (totals[:water_level]/count).round(2)
+      ph: (sum(totals[:phs])/count).round(2),
+      nsl: (sum(totals[:nsls])/count).round(2),
+      temp: (sum(totals[:temps])/count).round(2),
+      water_level: (sum(totals[:water_levels])/count).round(2)
     }
   end
 end
