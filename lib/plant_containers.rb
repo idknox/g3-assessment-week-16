@@ -17,20 +17,16 @@ class PlantContainers
   end
 
   def all_averages
-    ph, nsl, temp, water_level, count = 0, 0, 0, 0, 0
+    totals = {ph: 0, nsl: 0, temp: 0, water_level: 0}
+    count = 0
     CSV.foreach(@file, {:col_sep => " "}) do |row|
-      ph += row[4].to_f
-      nsl += row[5].to_i
-      temp += row[6].to_i
-      water_level += row[7].to_f
+      totals[:ph] += row[4].to_f
+      totals[:nsl] += row[5].to_i
+      totals[:temp] += row[6].to_i
+      totals[:water_level] += row[7].to_f
       count += 1.0
     end
-    {
-      ph: (ph/count).round(2),
-      nsl: (nsl/count).round(2),
-      temp: (temp/count).round(2),
-      water_level: (water_level/count).round(2)
-    }
+    build_total_averages(totals, count)
   end
 
   def highest_water_level
@@ -42,7 +38,7 @@ class PlantContainers
   def highest_ph(start_date, end_date)
     output = []
     CSV.foreach(@file, {:col_sep => " "}) do |row|
-      date= Date.parse(row[0])
+      date = Date.parse(row[0])
       output << {name: row[3], ph: row[7]} if date >= start_date && date <= end_date
     end
     output.sort_by { |container| container[:ph] }.last[:name]
@@ -60,16 +56,6 @@ class PlantContainers
     }
   end
 
-  def empty_container
-    {
-      ph_sum: 0,
-      nsl_sum: 0,
-      temp_sum: 0,
-      water_level_sum: 0,
-      count: 0.0
-    }
-  end
-
   def container_totals
     containers = {}
     CSV.foreach(@file, {:col_sep => " "}) do |row|
@@ -83,5 +69,24 @@ class PlantContainers
       containers[container][:count] += 1
     end
     containers
+  end
+
+  def empty_container
+    {
+      ph_sum: 0,
+      nsl_sum: 0,
+      temp_sum: 0,
+      water_level_sum: 0,
+      count: 0.0
+    }
+  end
+
+  def build_total_averages(totals, count)
+    {
+      ph: (totals[:ph]/count).round(2),
+      nsl: (totals[:nsl]/count).round(2),
+      temp: (totals[:temp]/count).round(2),
+      water_level: (totals[:water_level]/count).round(2)
+    }
   end
 end
